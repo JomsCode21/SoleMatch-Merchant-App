@@ -139,6 +139,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return {
     success: true,
     message: "Products synchronized successfully",
+    action: "analyze",
   };
 };
 

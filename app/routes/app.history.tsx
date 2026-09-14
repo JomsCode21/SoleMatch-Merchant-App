@@ -126,41 +126,53 @@ export default function History() {
               </s-stack>
             </s-box>
           ) : (
-            <s-stack direction="block" gap="small">
-              {logs.map((log) => {
-                const product = products.find(
-                  (product) => product.id === log.productId,
-                );
+            <div
+              style={{
+                maxHeight: "500px",
+                overflowY: "auto",
+                paddingRight: "8px",
+                border: "1px solid #e1e3e5",
+                borderRadius: "8px",
+                padding: "8px",
+              }}
+            >
+              <s-stack direction="block" gap="small">
+                {logs.map((log) => {
+                  const product = products.find(
+                    (product) => product.id === log.productId,
+                  );
 
-                return (
-                  <s-box
-                    key={log.id}
-                    padding="base"
-                    borderWidth="base"
-                    borderRadius="base"
-                  >
-                    <s-stack direction="block" gap="small">
-                      {activityBadge(log.action)}
+                  return (
+                    <s-box
+                      key={log.id}
+                      padding="base"
+                      borderWidth="base"
+                      borderRadius="base"
+                    >
+                      <s-stack direction="block" gap="small">
+                        {activityBadge(log.action)}
 
-                      <s-text>
-                        {product?.title ?? "All products"}
-                      </s-text>
+                        <s-text>
+                          {product?.title ?? "All products"}
+                        </s-text>
 
-                      <s-paragraph>
-                        {activityDescriptions[log.action]?.(product?.title) ??
-                          log.description}
-                      </s-paragraph>
+                        <s-paragraph>
+                          {activityDescriptions[log.action]?.(product?.title) ??
+                            log.description}
+                        </s-paragraph>
 
-                      <s-text>
-                        {log.createdAt.toLocaleString("en-PH", {
-                          timeZone: "UTC",
-                        })}
-                      </s-text>
-                    </s-stack>
-                  </s-box>
-                );
-              })}
-            </s-stack>
+                        <s-text>
+                          {log.createdAt.toLocaleString("en-PH", {
+                            timeZone: "UTC",
+                          })}
+                        </s-text>
+                      </s-stack>
+                    </s-box>
+                  );
+                })}
+              </s-stack>
+            </div>
+
           )}
         </s-section>
       )}
