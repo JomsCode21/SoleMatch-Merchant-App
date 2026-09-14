@@ -3,12 +3,13 @@ import type {
   HeadersFunction,
   LoaderFunctionArgs,
 } from "react-router";
-import { Form, useLoaderData } from "react-router";
+import { Form, useActionData, useLoaderData } from "react-router";
 import { authenticate } from "../shopify.server";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import db from "../db.server";
 import { eq } from "drizzle-orm";
 import { products, shops, inventorySnapshots, activityLogs } from "../db/schema.js";
+import { useState, useEffect } from "react";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { admin, session } = await authenticate.admin(request);
@@ -204,6 +205,21 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function Index() {
   const data = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const [showToast, setShowToast] = useState(false);
+
+  useEffect(() => {
+    if (actionData?.success) {
+      setShowToast(true);
+
+      const timer = setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [actionData]);
+
 
   const statusBadge = (status: string) => {
     if (status === "Critical") {
@@ -392,6 +408,26 @@ export default function Index() {
           </s-paragraph>
         </s-stack>
       </s-section>
+
+      {showToast && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "24px",
+            right: "24px",
+            background: "#2563eb",
+            color: "white",
+            padding: "14px 20px",
+            borderRadius: "8px",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+            zIndex: 1000,
+            fontWeight: 500,
+          }}
+        >
+          {actionData?.message}
+        </div>
+      )}
+
     </s-page>
   );
 }

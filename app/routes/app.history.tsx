@@ -30,6 +30,7 @@ const activityLabels: Record<string, string> = {
   RESTOCK_RULE_UPDATED: "Restock rule updated",
   PRODUCT_CREATED: "Product created",
   PRODUCT_UPDATED: "Product updated",
+  RESTOCK_RULE_DELETED: "Restock rule deleted",
 };
 
 const activityDescriptions: Record<
@@ -53,6 +54,10 @@ const activityBadge = (action: string) => {
 
   if (action === "RESTOCK_RULE_UPDATED") {
     return <s-badge tone="caution">Restock rule updated</s-badge>;
+  }
+
+  if (action === "RESTOCK_RULE_DELETED") {
+    return <s-badge tone="critical">Restock rule deleted</s-badge>
   }
 
   if (action === "PRODUCT_CREATED") {
