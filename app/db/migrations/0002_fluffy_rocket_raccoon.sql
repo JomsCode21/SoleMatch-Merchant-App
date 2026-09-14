@@ -1,0 +1,1 @@
+ALTER TABLE `products` ADD CONSTRAINT `shopify_product_unique` UNIQUE(`shop_id`,`shopify_product_id`);
