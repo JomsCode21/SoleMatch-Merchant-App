@@ -219,25 +219,7 @@ Set:
 
 ### 4. Review Activity
 
-Open **History** to review inventory analyses, product changes, and restock rule updates.
-
-## Shopify Theme
-
-The related SoleMatch storefront is located in the separate `theme` directory.
-
-The storefront includes:
-
-* Home page
-* Collection pages
-* Product pages
-* Cart
-* Custom benefits section
-* How It Works section
-* Find Your Match interactive quiz
-
-The interactive quiz recommends products based on activity, priority, and style preferences.
-
-The quiz is data-driven and reads product attributes from Shopify metafields rather than relying on a hard-coded product list.
+Open **History** to review inventory analysis, product changes, and restock rule updates.
 
 ## Testing
 
@@ -254,8 +236,6 @@ The application was tested with:
 * Product update webhook
 * Shopify navigation
 * Shopify cart and storefront functionality
-
-Temporary webhook and synchronization test products were removed after testing.
 
 ## Build
 
@@ -338,7 +318,7 @@ The overall product experience connects both sides of the store:
 
 ## Additional Documentation
 
-See [`APP_DECISIONS.md`](APP_DECISIONS.md) for:
+See [`APP_DECISION.md`](APP_DECISION.md) for:
 
 * Store concept
 * App idea
