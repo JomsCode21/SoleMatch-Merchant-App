@@ -145,14 +145,8 @@ Create a `.env` file in the project root with the required Shopify and database 
 Example:
 
 ```env
-SHOPIFY_API_KEY=your_shopify_api_key
-SHOPIFY_API_SECRET=your_shopify_api_secret
-SCOPES=write_products,write_metaobjects,write_metaobject_definitions
-SHOPIFY_APP_URL=your_app_url
 DATABASE_URL=mysql://username:password@localhost:3306/solematch
 ```
-
-Do not commit `.env` or any Shopify secrets to source control.
 
 ## Install Dependencies
 
