@@ -1,100 +1,116 @@
 # SoleMatch Merchant Assistant
 
-SoleMatch Merchant Assistant is an embedded Shopify Admin app that helps sneaker merchants identify which products need inventory attention first.
+SoleMatch Merchant Assistant is an embedded Shopify Admin app designed to help sneaker merchants identify which products need inventory attention first.
 
-It combines Shopify product data, a rule-based priority score, restock rules, inventory snapshots, activity history, and Shopify webhooks into one merchant workflow.
+The app combines Shopify product data, inventory analysis, priority scoring, restock rules, activity history, and Shopify webhooks into a focused merchant workflow.
+
+It also includes a customer-facing product-matching quiz that recommends sneakers based on activity, priority, and style.
+
+---
 
 ## Features
 
 ### Merchant Dashboard
 
-The dashboard provides:
+The dashboard gives merchants a prioritized view of their inventory, including:
 
-* Critical products
-* Watchlist products
-* Healthy products
-* Top restock priorities
-* Inventory levels
-* Priority scores
-* Action recommendations
+- Critical products
+- Watchlist products
+- Healthy products
+- Top restock priorities
+- Inventory levels
+- Priority scores
+- Action recommendations
+
+The goal is to answer one specific merchant question:
+
+> Which products should I pay attention to first?
 
 ### Inventory Priority Scoring
 
-Products are automatically classified based on inventory:
+Products are prioritized based on their current inventory level:
 
-| Inventory | Score | Status    |
-| --------- | ----: | --------- |
-| 0         |   100 | Critical  |
-| 1–3       |    70 | Critical  |
-| 4–8       |    45 | Watchlist |
-| 9–15      |    20 | Healthy   |
-| 16+       |     0 | Healthy   |
+| Inventory | Score | Status |
+| --------- | ----: | ------ |
+| 0         | 100   | Critical |
+| 1–3       | 70    | Critical |
+| 4–8       | 45    | Watchlist |
+| 9–15      | 20    | Healthy |
+| 16+       | 0     | Healthy |
 
 The scoring system is intentionally simple and explainable so merchants can understand why a product requires attention.
 
+Detailed reasoning behind the scoring model is documented in [APP_DECISION.md](APP_DECISION.md).
+
 ### Customer Product-Matching Quiz
 
-The SoleMatch storefront includes an interactive product-matching quiz that recommends a sneaker based on:
+The SoleMatch storefront includes an interactive quiz that recommends a sneaker based on:
 
-* Activity
-* Priority
-* Style
+- Activity
+- Priority
+- Style
 
 Product matching is data-driven using Shopify product metafields:
 
-* `solematch.activity`
-* `solematch.priority`
-* `solematch.style`
+- `solematch.activity`
+- `solematch.priority`
+- `solematch.style`
 
 The quiz calculates a match score using:
 
-* Activity match: 50 points
-* Priority match: 30 points
-* Style match: 20 points
+- Activity match: 50 points
+- Priority match: 30 points
+- Style match: 20 points
 
-The highest-scoring product is displayed with its product image, collection, recommendation reason, match score, and product link.
+The highest-scoring product is presented as the customer's best match.
 
-This approach allows new products to participate in the quiz without changing the quiz JavaScript, as long as the product has the required metafield values.
+Product configuration is stored in Shopify rather than hard-coded into the quiz, allowing new products to participate without changing the quiz logic as long as the required metafields are configured.
 
 ### Restock Rules
 
-Merchants can create and update rules for individual products with:
+Merchants can create and update restock rules for individual products.
 
-* Minimum inventory threshold
-* Priority
-* Notes
+Each rule can include:
+
+- Minimum inventory threshold
+- Priority
+- Notes
 
 ### Activity History
 
-The app records important activity including:
+The app records important merchant and system activity, including:
 
-* Inventory analysis
-* Product creation
-* Product updates
-* Restock rule updates
+- Inventory analysis
+- Product creation
+- Product updates
+- Restock rule updates
 
 ### Shopify Webhooks
 
-The app listens for:
+The app listens for Shopify events including:
 
-* `products/create`
-* `products/update`
-* `app/uninstalled`
-* `app/scopes_update`
+- `products/create`
+- `products/update`
+- `app/uninstalled`
+- `app/scopes_update`
 
-Product webhooks synchronize Shopify product changes with the application database and create inventory snapshots and activity records.
+Product webhooks help keep the application's local product data synchronized when changes occur in Shopify.
+
+---
 
 ## Technology
 
-* Shopify Embedded App
-* React Router
-* Vite
-* Node.js
-* TypeScript
-* Drizzle ORM
-* MySQL
-* Shopify Admin GraphQL API
-* Shopify Webhooks
+- Shopify Embedded App
+- React Router
+- Vite
+- Node.js
+- TypeScript
+- Drizzle ORM
+- MySQL
+- Shopify Admin GraphQL API
+- Shopify Webhooks
+
+---
 
 ## Project Structure
 
@@ -107,93 +123,103 @@ sole-match-merchant-assistant/
 │   │   ├── app._index.tsx
 │   │   ├── app.restock-rules.tsx
 │   │   ├── app.history.tsx
+│   │   ├── app.additional.tsx
+│   │   ├── app.sync.tsx
 │   │   ├── webhooks.products.create.tsx
 │   │   └── webhooks.products.update.tsx
 │   ├── db.server.ts
 │   ├── shopify.server.ts
 │   └── session-storage.server.ts
-├── database/
-│   ├── migrations/
-│   ├── schema.ts
-│   └── drizzle.config.ts
+├── extensions/
+├── public/
 ├── shopify.app.toml
-├── APP_DECISIONS.md
 ├── package.json
+├── APP_DECISION.md
 └── README.md
 ```
+
+---
 
 ## Prerequisites
 
 Before running the project, install:
 
-* Node.js
-* Shopify CLI
-* MySQL
+- Node.js
+- Shopify CLI
+- MySQL
 
-You also need access to a Shopify development store.
+You will also need access to a Shopify development store.
 
-## Database Setup
+---
 
-Create a MySQL database named:
+## Installation
 
-```sql
-CREATE DATABASE solematch;
-```
-
-Create a `.env` file in the project root with the required Shopify and database configuration.
-
-Example:
-
-```env
-DATABASE_URL=mysql://username:password@localhost:3306/solematch
-```
-
-## Install Dependencies
-
-From the project directory:
+Clone the repository and install dependencies:
 
 ```shell
 npm install
 ```
 
-## Database Migrations
+Create a `.env` file in the project root with the required Shopify and database configuration.
 
-Generate or apply Drizzle migrations using the project's configured Drizzle workflow.
+For example:
 
-The database contains:
+```env
+DATABASE_URL=mysql://username:password@localhost:3306/solematch
+```
 
-* `shops`
-* `products`
-* `inventory_snapshots`
-* `restock_rules`
-* `activity_logs`
-* `sessions`
+Do not commit `.env` or other environment files containing secrets.
+
+---
+
+## Database Setup
+
+Create a MySQL database:
+
+```sql
+CREATE DATABASE solematch;
+```
+
+The application uses Drizzle ORM for database access.
+
+The database contains the following tables:
+
+- `shops`
+- `products`
+- `inventory_snapshots`
+- `restock_rules`
+- `activity_logs`
+- `sessions`
 
 The `products` table uses a composite unique constraint on the shop and Shopify product ID to prevent duplicate product records.
 
+---
+
 ## Local Development
 
-Start the Shopify development environment with:
+Start the Shopify development environment:
 
 ```shell
 shopify app dev
 ```
 
-The Shopify CLI creates the development tunnel and updates the development app configuration automatically.
+The Shopify CLI creates the development tunnel and manages the development app configuration.
 
-After the CLI starts, open the generated app preview URL and install/open the app in the development store.
+After the CLI starts, open the generated app preview URL and install or open the app in the Shopify development store.
+
+---
 
 ## Using the App
 
 ### 1. Analyze Inventory
 
-Open the SoleMatch Merchant Assistant dashboard and select **Analyze inventory**.
+Open the SoleMatch Merchant Assistant dashboard and select **Analyze Inventory**.
 
-The app retrieves products from Shopify and synchronizes:
+The app retrieves product information from Shopify and synchronizes:
 
-* Product title
-* Price
-* Inventory
+- Product title
+- Price
+- Inventory
 
 It then calculates a priority score and stores an inventory snapshot.
 
@@ -201,51 +227,145 @@ It then calculates a priority score and stores an inventory snapshot.
 
 The dashboard groups products into:
 
-* Critical
-* Watchlist
-* Healthy
+- Critical
+- Watchlist
+- Healthy
 
-The highest-priority products are displayed first.
+Higher-priority products are displayed first so merchants can focus on the products that require the most attention.
 
 ### 3. Create Restock Rules
 
 Open **Restock Rules** and create a rule for a product.
 
-Set:
+Configure:
 
-* Minimum inventory
-* Priority
-* Notes
+- Minimum inventory
+- Priority
+- Notes
 
 ### 4. Review Activity
 
-Open **History** to review inventory analysis, product changes, and restock rule updates.
+Open **History** to review inventory analysis, product changes, and restock rule activity.
+
+---
+
+## Customer Product Matching
+
+The customer-facing storefront provides a **Find Your Match** experience.
+
+Customers answer questions about:
+
+- Activity
+- Priority
+- Style
+
+The quiz compares those answers against product metafields configured in Shopify and calculates a match score.
+
+The product with the highest score is presented as the customer's recommended sneaker.
+
+---
 
 ## Testing
 
-The application was tested with:
+The application has been tested for:
 
-* Product synchronization
-* Duplicate prevention
-* Inventory analysis
-* Priority scoring
-* Restock rule creation
-* Restock rule updates
-* Activity history
-* Product create webhook
-* Product update webhook
-* Shopify navigation
-* Shopify cart and storefront functionality
+- Product synchronization
+- Duplicate prevention
+- Inventory analysis
+- Priority scoring
+- Restock rule creation
+- Restock rule updates
+- Activity history
+- Product create webhook
+- Product update webhook
+- Shopify navigation
+- Shopify cart and storefront functionality
+
+---
 
 ## Build
 
-To build the application:
+Build the application with:
 
 ```shell
 npm run build
 ```
 
-A successful build confirms that the TypeScript and React Router application can be compiled for deployment.
+A successful build confirms that the TypeScript and React Router application can be compiled successfully.
+
+---
+
+## Architecture
+
+Shopify is the source of truth for product and inventory data.
+
+The application database is used for:
+
+- Synchronized product data
+- Inventory snapshots
+- Merchant restock rules
+- Activity history
+- Shopify session data
+
+The primary merchant workflow is:
+
+```text
+Shopify
+   ↓
+Product Data
+   ↓
+Inventory Analysis
+   ↓
+Priority Score
+   ↓
+Critical / Watchlist / Healthy
+   ↓
+Merchant Action
+   ↓
+Restock Rule
+   ↓
+Activity History
+```
+
+Shopify product webhooks provide an additional synchronization path when products are created or updated outside the application.
+
+---
+
+## Product Thinking
+
+SoleMatch is designed around two focused experiences.
+
+### Merchant
+
+The merchant experience answers:
+
+> Which products should I pay attention to first?
+
+The workflow is:
+
+**Analyze → Prioritize → Create Restock Rule → Track Activity**
+
+### Customer
+
+The customer experience answers:
+
+> Which sneaker is the best match for me?
+
+The workflow is:
+
+**Answer Questions → Get Match → View Product**
+
+Product attributes for the customer quiz are stored in Shopify product metafields, keeping product configuration separate from recommendation logic.
+
+---
+
+## Additional Documentation
+
+For product decisions, architecture rationale, database design, scoring logic, technical tradeoffs, and future improvements, see:
+
+[APP_DECISION.md](APP_DECISION.md)
+
+---
 
 ## Deployment Notes
 
@@ -258,72 +378,7 @@ Before production deployment:
 5. Run the required Drizzle migrations.
 6. Deploy the application server.
 7. Deploy the Shopify app configuration.
-8. Verify webhooks after deployment.
-9. Install and test the production app on a development/test store before wider use.
+8. Verify Shopify webhooks.
+9. Install and test the production app on a development or test store before wider release.
 
-The current development setup is intended for the Shopify take-home assessment and local development.
-
-## Architecture
-
-Shopify is the source of truth for product and inventory data.
-
-The application database stores:
-
-* Shop information
-* Synchronized products
-* Inventory snapshots
-* Merchant restock rules
-* Activity history
-* Shopify sessions
-
-The main workflow is:
-
-```text
-Shopify
-   ↓
-Product data
-   ↓
-Inventory analysis
-   ↓
-Priority score
-   ↓
-Critical / Watchlist / Healthy
-   ↓
-Merchant action
-   ↓
-Restock rule
-   ↓
-Activity history
-```
-
-Shopify product webhooks provide another synchronization path when products are created or updated outside the application.
-
-## Product Thinking
-
-The app is designed around a specific merchant question:
-
-> Which products should I pay attention to first?
-
-Instead of presenting only a generic inventory table, the application turns inventory levels into an actionable priority.
-
-The customer-facing storefront applies the same product-focused approach through an interactive matching quiz. Customers answer questions about their activity, priority, and style, and the quiz recommends the product that best matches their preferences.
-
-Product attributes for the quiz are stored in Shopify product metafields, keeping product configuration separate from the recommendation logic.
-
-The overall product experience connects both sides of the store:
-
-**Merchant:** Analyze → Prioritize → Create Restock Rule → Track Activity
-
-**Customer:** Answer Questions → Get Match → View Product
-
-## Additional Documentation
-
-See [`APP_DECISION.md`](APP_DECISION.md) for:
-
-* Store concept
-* App idea
-* Architecture decisions
-* Database design
-* Priority scoring logic
-* Technical tradeoffs
-* Future improvements
+The current configuration is intended for the Shopify take-home assessment and local development.
