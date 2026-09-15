@@ -16,23 +16,21 @@ export const shops = mysqlTable("shops", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const products = mysqlTable(
-  "products",
-  {
-    id: int("id").autoincrement().primaryKey(),
-    // Foreign key → shops.id
-    shopId: int("shop_id")
-      .notNull()
-      .references(() => shops.id),
-    shopifyProductId: varchar("shopify_product_id", {
-      length: 255,
-    }).notNull(),
-    title: varchar("title", { length: 255 }).notNull(),
-    price: varchar("price", { length: 50 }).notNull(),
-    inventory: int("inventory").default(0).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  },
+export const products = mysqlTable("products", {
+  id: int("id").autoincrement().primaryKey(),
+  // Foreign key → shops.id
+  shopId: int("shop_id")
+    .notNull()
+    .references(() => shops.id),
+  shopifyProductId: varchar("shopify_product_id", {
+    length: 255,
+  }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  price: varchar("price", { length: 50 }).notNull(),
+  inventory: int("inventory").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+},
   (table) => ({
     shopifyProductUnique: unique("shopify_product_unique").on(
       table.shopId,
