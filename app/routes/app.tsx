@@ -23,6 +23,7 @@ export default function App() {
         null,
         createElement("s-link", { href: "/app" }, "Home"),
         createElement("s-link", { href: "/app/restock-rules" }, "Restock Rules"),
+        createElement("s-link", { href: "/app/discount-generator" }, "Discount Generator"),
         createElement("s-link", { href: "/app/history" }, "History"),
       )}
       <Outlet />

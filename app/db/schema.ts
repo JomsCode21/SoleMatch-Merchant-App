@@ -91,3 +91,19 @@ export const sessions = mysqlTable("sessions", {
   collaborator: int("collaborator"),
   emailVerified: int("email_verified"),
 });
+
+export const discount = mysqlTable("discount", {
+  id: int("id").autoincrement().primaryKey(),
+  shopId: int("shop_id")
+    .notNull()
+    .references(() => shops.id),
+  productId: int("product_id")
+    .notNull()
+    .references(() => products.id),
+  discountCode: varchar("discount_code", { length: 255 }).notNull(),
+  discountType: varchar("discount_type", { length: 50 }).notNull(),
+  discountValue: varchar("discount_value", { length: 50 }).notNull(),
+  createdAt: timestamp("created_at")
+    .defaultNow()
+    .notNull(),
+});
