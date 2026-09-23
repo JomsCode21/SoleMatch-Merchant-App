@@ -1,0 +1,1 @@
+ALTER TABLE `discount` ADD `max_uses` int;

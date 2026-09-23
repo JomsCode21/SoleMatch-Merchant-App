@@ -36,6 +36,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const productId = Number(formData.get("productId"));
   const discountValue = Number(formData.get("discountValue"));
+  const maxUses = Number(formData.get("maxUses"));
   const expiresDate = String(formData.get("expiresDate") || "");
   const expiresTime = String(formData.get("expiresTime") || "");
 
@@ -45,12 +46,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     !Number.isInteger(discountValue) ||
     discountValue < 1 ||
     discountValue > 100 ||
+    !Number.isInteger(maxUses) ||
+    maxUses < 1 ||
     !expiresDate ||
     !expiresTime
   ) {
     return {
       success: false,
-      message: "Enter a valid discount value, expiration date, expiration time, and choose a product.",
+      message: "Enter a valid discount value, maximum uses, expiration date, expiration time, and choose a product.",
     };
   }
 
@@ -118,6 +121,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           code,
           startsAt: new Date().toISOString(),
           endsAt: expiresAt.toISOString(),
+          usageLimit: maxUses,
           customerSelection: { all: true },
           customerGets: {
             value,
@@ -141,12 +145,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     discountType: "percentage",
     discountValue: String(discountValue),
     expiresAt: expiresAt,
+    maxUses: maxUses,
   });
 
   return {
     success: true,
     message: `Discount ${code} created for ${product[0].title}.`,
     code,
+    maxUses,
     expiresAt: expiresAt.toISOString(),
   };
 };
@@ -195,7 +201,7 @@ export default function DiscountGenerator() {
           <s-stack direction="block" gap="base">
             <s-heading>Create a product discount</s-heading>
             <s-paragraph>
-              Generate a Shopify discount code for one product with a custom percentage and expiration date.
+              Generate a Shopify discount code for one product with a custom percentage, usage limit, and expiration date.
             </s-paragraph>
             <Form method="post">
               <s-stack direction="block" gap="base">
@@ -214,6 +220,14 @@ export default function DiscountGenerator() {
                   name="discountValue"
                   min={1}
                   max={100}
+                  step={1}
+                  required
+                />
+
+                <s-number-field
+                  label="Maximum uses"
+                  name="maxUses"
+                  min={1}
                   step={1}
                   required
                 />
@@ -277,6 +291,10 @@ export default function DiscountGenerator() {
 
                   <s-text>
                     Use this code to apply the discount to the selected product.
+                  </s-text>
+
+                  <s-text>
+                    Maximum uses: {actionData.maxUses}
                   </s-text>
 
                   {actionData.expiresAt && (

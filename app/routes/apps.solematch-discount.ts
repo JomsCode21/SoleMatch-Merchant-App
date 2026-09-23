@@ -6,11 +6,12 @@ import db from "../db.server";
 import { discount, products, shops } from "../db/schema";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.public.appProxy(request);
+  const { session, admin } = await authenticate.public.appProxy(request);
 
-  if(!session) {
+  if (!session) {
     return Response.json(
-      { success: false,
+      {
+        success: false,
         message: "Shop session not found."
       },
       { status: 401 },
@@ -23,7 +24,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   if (!productId) {
     return Response.json(
-      { success: false,
+      {
+        success: false,
         message: "Product ID is required."
       },
       { status: 400 },
@@ -72,6 +74,48 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       success: false,
       discount: null,
     });
+  }
+
+  // Check  Shopify Usage
+  if (admin) {
+    const response = await admin.graphql(
+      `#graphql
+      query GetDiscountUsage($code: String!) {
+        codeDiscountNodeByCode(code: $code) {
+          id
+          codeDiscount {
+            __typename
+            ... on DiscountCodeBasic {
+              title
+              usageLimit
+              asyncUsageCount
+            }
+          }
+        }
+      }
+    `,
+      {
+        variables: {
+          code: item.discountCode,
+        },
+      },
+    );
+
+    const result = await response.json();
+
+    const shopifyDiscount =
+      result.data?.codeDiscountNodeByCode?.codeDiscount;
+
+    if (
+      shopifyDiscount?.usageLimit !== null &&
+      shopifyDiscount?.usageLimit !== undefined &&
+      shopifyDiscount.asyncUsageCount >= shopifyDiscount.usageLimit
+    ) {
+      return Response.json({
+        success: false,
+        discount: null,
+      });
+    }
   }
 
   return Response.json({
