@@ -103,6 +103,7 @@ export const discount = mysqlTable("discount", {
   discountCode: varchar("discount_code", { length: 255 }).notNull(),
   discountType: varchar("discount_type", { length: 50 }).notNull(),
   discountValue: varchar("discount_value", { length: 50 }).notNull(),
+  expiresAt: timestamp("expires_at"),
   createdAt: timestamp("created_at")
     .defaultNow()
     .notNull(),

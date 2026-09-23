@@ -38,6 +38,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         productTitle: products.title,
         discountCode: discount.discountCode,
         discountValue: discount.discountValue,
+        expiresAt: discount.expiresAt,
         createdAt: discount.createdAt,
       })
       .from(discount)
@@ -145,6 +146,7 @@ export default function History() {
             <table
               style={{
                 width: "100%",
+                minWidth: "700px",
                 borderCollapse: "collapse",
               }}
             >
@@ -186,6 +188,15 @@ export default function History() {
                   >
                     Created
                   </th>
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "12px",
+                      borderBottom: "1px solid #e1e3e5",
+                    }}
+                  >
+                    Expires
+                  </th>
                 </tr>
               </thead>
 
@@ -210,6 +221,18 @@ export default function History() {
                       {item.createdAt.toLocaleString("en-PH", {
                         timeZone: "UTC",
                       })}
+                    </td>
+                    <td style={{ padding: "12px" }}>
+                      {item.expiresAt
+                        ? item.expiresAt.toLocaleDateString("en-PH", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "numeric",
+                          minute: "2-digit",
+                          timeZone: "UTC",
+                        })
+                        : "-"}
                     </td>
                   </tr>
                 ))}
@@ -266,6 +289,7 @@ export default function History() {
               <table
                 style={{
                   width: "100%",
+                  minWidth: "700px",
                   borderCollapse: "collapse",
                 }}
               >

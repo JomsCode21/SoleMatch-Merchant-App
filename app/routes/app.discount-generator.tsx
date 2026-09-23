@@ -36,17 +36,36 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const productId = Number(formData.get("productId"));
   const discountValue = Number(formData.get("discountValue"));
+  const expiresDate = String(formData.get("expiresDate") || "");
+  const expiresTime = String(formData.get("expiresTime") || "");
 
   if (
     !Number.isInteger(productId) ||
     !Number.isFinite(discountValue) ||
     !Number.isInteger(discountValue) ||
     discountValue < 1 ||
-    discountValue > 100
+    discountValue > 100 ||
+    !expiresDate ||
+    !expiresTime
   ) {
     return {
       success: false,
-      message: "Enter a valid discount value and choose a product.",
+      message: "Enter a valid discount value, expiration date, expiration time, and choose a product.",
+    };
+  }
+
+  const expiresAt = new Date(`${expiresDate}T${expiresTime}:00`);
+
+  if (Number.isNaN(expiresAt.getTime())) {
+    return {
+      success: false,
+      message: "Enter a valid expiration date and time."
+    };
+  }
+  if (expiresAt.getTime() <= Date.now()) {
+    return {
+      success: false,
+      message: "Expiration date and time must be in the future."
     };
   }
 
@@ -98,6 +117,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           title: code,
           code,
           startsAt: new Date().toISOString(),
+          endsAt: expiresAt.toISOString(),
           customerSelection: { all: true },
           customerGets: {
             value,
@@ -120,12 +140,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     discountCode: code,
     discountType: "percentage",
     discountValue: String(discountValue),
+    expiresAt: expiresAt,
   });
 
   return {
     success: true,
     message: `Discount ${code} created for ${product[0].title}.`,
     code,
+    expiresAt: expiresAt.toISOString(),
   };
 };
 
@@ -173,7 +195,7 @@ export default function DiscountGenerator() {
           <s-stack direction="block" gap="base">
             <s-heading>Create a product discount</s-heading>
             <s-paragraph>
-              Generate a Shopify discount code that applies to one product.
+              Generate a Shopify discount code for one product with a custom percentage and expiration date.
             </s-paragraph>
             <Form method="post">
               <s-stack direction="block" gap="base">
@@ -196,6 +218,40 @@ export default function DiscountGenerator() {
                   required
                 />
 
+                <s-date-field
+                  label="Expiration date"
+                  name="expiresDate"
+                  required
+                />
+
+                <div>
+                  <label
+                    htmlFor="expiresTime"
+                    style={{
+                      display: "block",
+                      marginBottom: "6px",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Expiration time
+                  </label>
+
+                  <input
+                    id="expiresTime"
+                    type="time"
+                    name="expiresTime"
+                    required
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      border: "1px solid #8c9196",
+                      borderRadius: "6px",
+                      fontSize: "14px",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
                 <s-button
                   variant="primary"
                   type="submit"
@@ -216,10 +272,28 @@ export default function DiscountGenerator() {
               <s-section heading="Generated discount">
                 <s-stack direction="block" gap="small">
                   <s-text>Discount code</s-text>
+
                   <s-heading>{actionData.code}</s-heading>
+
                   <s-text>
                     Use this code to apply the discount to the selected product.
                   </s-text>
+
+                  {actionData.expiresAt && (
+                    <s-text>
+                      Expires:{" "}
+                      {new Date(actionData.expiresAt).toLocaleDateString(
+                        "en-PH",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "numeric",
+                          minute: "2-digit",
+                        },
+                      )}
+                    </s-text>
+                  )}
                 </s-stack>
               </s-section>
             )}
